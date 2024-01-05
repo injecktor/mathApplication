@@ -260,7 +260,7 @@
      <cursorShape>PointingHandCursor</cursorShape>
     </property>
     <property name="text">
-     <string>π</string>
+     <string>pi</string>
     </property>
    </widget>
    <widget class="QPushButton" name="twoButton">
@@ -401,7 +401,7 @@
      <string>CE</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="closeBracketButton">
+   <widget class="QPushButton" name="closeParenButton">
     <property name="geometry">
      <rect>
       <x>330</x>
@@ -447,7 +447,7 @@
      <string>0</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="openBracketButton">
+   <widget class="QPushButton" name="openParenButton">
     <property name="geometry">
      <rect>
       <x>250</x>
@@ -470,7 +470,7 @@
      <string>(</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="divideButton">
+   <widget class="QPushButton" name="divisionButton">
     <property name="geometry">
      <rect>
       <x>250</x>
@@ -582,7 +582,7 @@
      <cursorShape>PointingHandCursor</cursorShape>
     </property>
     <property name="text">
-     <string>φ</string>
+     <string>phi</string>
     </property>
    </widget>
    <widget class="QPushButton" name="evalButton">

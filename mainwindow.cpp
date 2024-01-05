@@ -6,7 +6,10 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    QString tmp = ui->display->placeholderText();
+    tokenizer = new Tokenizer;
+    tokenizerThread = new QThread;
+    tokenizer->moveToThread(tokenizerThread);
+    tokenizerThread->start();
 }
 
 MainWindow::~MainWindow()
@@ -79,7 +82,7 @@ void MainWindow::on_multiplicationButton_released()
     ui->display->setText(ui->display->toPlainText() + "*");
 }
 
-void MainWindow::on_divideButton_released()
+void MainWindow::on_divisionButton_released()
 {
     ui->display->setText(ui->display->toPlainText() + "/");
 }
@@ -94,12 +97,12 @@ void MainWindow::on_dotButton_released()
     ui->display->setText(ui->display->toPlainText() + ".");
 }
 
-void MainWindow::on_openBracketButton_released()
+void MainWindow::on_openParenButton_released()
 {
     ui->display->setText(ui->display->toPlainText() + "(");
 }
 
-void MainWindow::on_closeBracketButton_released()
+void MainWindow::on_closeParenButton_released()
 {
     ui->display->setText(ui->display->toPlainText() + ")");
 }
@@ -111,7 +114,7 @@ void MainWindow::on_moduleButton_released()
 
 void MainWindow::on_piButton_released()
 {
-    ui->display->setText(ui->display->toPlainText() + "π");
+    ui->display->setText(ui->display->toPlainText() + "pi");
 }
 
 void MainWindow::on_eButton_released()
@@ -121,7 +124,7 @@ void MainWindow::on_eButton_released()
 
 void MainWindow::on_phiButton_released()
 {
-    ui->display->setText(ui->display->toPlainText() + "φ");
+    ui->display->setText(ui->display->toPlainText() + "phi");
 }
 
 void MainWindow::on_CButton_released()

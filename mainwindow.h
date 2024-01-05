@@ -4,6 +4,9 @@
 #include <QMainWindow>
 #include <QString>
 #include <QPushButton>
+#include <QThread>
+
+#include "tokenizer.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -33,11 +36,11 @@ private slots:
     void on_plusButton_released();
     void on_minusButton_released();
     void on_multiplicationButton_released();
-    void on_divideButton_released();
+    void on_divisionButton_released();
     void on_powerButton_released();
     void on_dotButton_released();
-    void on_openBracketButton_released();
-    void on_closeBracketButton_released();
+    void on_openParenButton_released();
+    void on_closeParenButton_released();
     void on_moduleButton_released();
     void on_piButton_released();
     void on_eButton_released();
@@ -49,5 +52,9 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+
+    Tokenizer* tokenizer;
+
+    QThread* tokenizerThread;
 };
 #endif // MAINWINDOW_H
