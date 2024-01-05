@@ -7,8 +7,6 @@
 #include <optional>
 #include <QtMath>
 #include <QDebug>
-#include <ctype.h>
-#include <stdio.h>
 
 typedef enum {
     number,
@@ -32,7 +30,10 @@ class Tokenizer : public QObject
     Q_OBJECT
 public:
     Tokenizer();
+
+public slots:
     QVector<Token> tokenize(QString input);
+
 private:
     QChar consume();
     std::optional<QChar> peek(int offset = 0);

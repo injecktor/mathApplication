@@ -10,6 +10,8 @@ MainWindow::MainWindow(QWidget *parent)
     tokenizerThread = new QThread;
     tokenizer->moveToThread(tokenizerThread);
     tokenizerThread->start();
+
+    connect(this, SIGNAL(eval(QString)), tokenizer, SLOT(tokenize(QString)));
 }
 
 MainWindow::~MainWindow()
@@ -140,6 +142,6 @@ void MainWindow::on_CEButton_released()
 
 void MainWindow::on_evalButton_released()
 {
-
+    emit eval(ui->display->toPlainText());
 }
 

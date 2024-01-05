@@ -6,10 +6,10 @@ Tokenizer::Tokenizer() {
 
 QVector<Token> Tokenizer::tokenize(QString input) {
     QVector<Token> tokens;
-    m_str = input.removeIf(" ");
+    m_str = input.trimmed();
     while (m_index < m_str.length()) {
         QChar cur = consume();
-        if (cur.digitValue() == -1) {
+        if (!cur.isDigit()) {
             if (cur == '+') {
                 tokens.push_back({.tokenType = TokenType::plus});
                 continue;
@@ -59,13 +59,21 @@ QVector<Token> Tokenizer::tokenize(QString input) {
                 tokens.push_back({.tokenType = TokenType::module});
                 continue;
             }
+            else if (cur == 'e') {
+                tokens.push_back({.tokenType = TokenType::number, .value = 2.7182818284});
+                continue;
+            }
             else {
                 qDebug() << "Incorrect input";
                 return {};
             }
         }
         else {
-
+            QString tmp = peek(-1).value();
+            while (peek().has_value() && (peek().value().isDigit() || peek().value() == '.')) {
+                tmp += consume();
+            }
+            tokens.push_back({.tokenType = TokenType::number, .value = tmp.toDouble()});
         }
     }
     return tokens;

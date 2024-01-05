@@ -50,6 +50,9 @@ private slots:
 
     void on_evalButton_released();
 
+signals:
+    void eval(QString);
+
 private:
     Ui::MainWindow *ui;
 
