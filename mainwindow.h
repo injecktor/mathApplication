@@ -6,7 +6,7 @@
 #include <QPushButton>
 #include <QThread>
 
-#include "tokenizer.h"
+#include "evaluator.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -56,7 +56,7 @@ signals:
 private:
     Ui::MainWindow *ui;
 
-    Tokenizer* tokenizer;
+    Evaluator* evaluator;
 
     QThread* tokenizerThread;
 };

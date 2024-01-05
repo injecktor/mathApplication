@@ -1,38 +1,16 @@
 #ifndef TOKENIZER_H
 #define TOKENIZER_H
 
-#include <QString>
-#include <QObject>
-#include <QVector>
-#include <optional>
-#include <QtMath>
-#include <QDebug>
-
-typedef enum {
-    number,
-    plus,
-    minus,
-    multiplication,
-    division,
-    power,
-    openParen,
-    closeParen,
-    module
-} TokenType;
-
-struct Token {
-    TokenType tokenType;
-    std::optional<double> value;
-};
+#include "parser.h"
 
 class Tokenizer : public QObject
 {
     Q_OBJECT
 public:
-    Tokenizer();
+    Tokenizer(QString input);
 
 public slots:
-    QVector<Token> tokenize(QString input);
+    QVector<Token> tokenize();
 
 private:
     QChar consume();

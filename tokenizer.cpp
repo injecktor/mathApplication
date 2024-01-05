@@ -1,12 +1,11 @@
 #include "tokenizer.h"
 
-Tokenizer::Tokenizer() {
+Tokenizer::Tokenizer(QString input) : m_str(input.trimmed()) {
 
 }
 
-QVector<Token> Tokenizer::tokenize(QString input) {
+QVector<Token> Tokenizer::tokenize() {
     QVector<Token> tokens;
-    m_str = input.trimmed();
     while (m_index < m_str.length()) {
         QChar cur = consume();
         if (!cur.isDigit()) {
@@ -69,7 +68,7 @@ QVector<Token> Tokenizer::tokenize(QString input) {
             }
         }
         else {
-            QString tmp = peek(-1).value();
+            QString tmp = cur;
             while (peek().has_value() && (peek().value().isDigit() || peek().value() == '.')) {
                 tmp += consume();
             }
