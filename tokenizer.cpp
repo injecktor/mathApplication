@@ -8,7 +8,49 @@ QVector<Token> Tokenizer::tokenize() {
     QVector<Token> tokens;
     while (m_index < m_str.length()) {
         QChar cur = consume();
-        if (!cur.isDigit()) {
+        if (cur.isDigit() || (m_index == 1 && !cur.isDigit()) || (cur == '(' && peek().has_value() && peek().value() == '-')) {
+            QString number;
+            if (!cur.isDigit()) {
+                if (cur == '(' && peek().has_value() && peek().value() == '-') {
+                    if (peek(1).has_value()) {
+                        if (peek(1).value().isDigit()) {
+                            tokens.push_back({.tokenType = TokenType::openParen});
+                            cur = consume();
+                        }
+                        else if (peek(1).value() == '(') {
+                            tokens.push_back({.tokenType = TokenType::openParen});
+                            continue;
+                        }
+                        else {
+                            qDebug() << "Incorrect input";
+                            return {};
+                        }
+                    }
+                    else {
+                        qDebug() << "Incorrect input";
+                        return {};
+                    }
+                }
+                else if (cur == '(' && peek().has_value() && peek().value().isDigit()) {
+                    tokens.push_back({.tokenType = TokenType::openParen});
+                    continue;
+                }
+                else if (cur == '-' && peek().has_value() && peek().value() == '(') {
+                    tokens.push_back({.tokenType = TokenType::minus});
+                    continue;
+                }
+                else if (cur != '-' || !peek().has_value() || !peek().value().isDigit()) {
+                    qDebug() << "Incorrect input";
+                    return {};
+                }
+            }
+            number += cur;
+            while (peek().has_value() && (peek().value().isDigit() || peek().value() == '.')) {
+                number += consume();
+            }
+            tokens.push_back({.tokenType = TokenType::number, .value = number.toDouble()});
+        }
+        else {
             if (cur == '+') {
                 tokens.push_back({.tokenType = TokenType::plus});
                 continue;
@@ -66,13 +108,6 @@ QVector<Token> Tokenizer::tokenize() {
                 qDebug() << "Incorrect input";
                 return {};
             }
-        }
-        else {
-            QString tmp = cur;
-            while (peek().has_value() && (peek().value().isDigit() || peek().value() == '.')) {
-                tmp += consume();
-            }
-            tokens.push_back({.tokenType = TokenType::number, .value = tmp.toDouble()});
         }
     }
     return tokens;

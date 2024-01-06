@@ -9,6 +9,7 @@ class Evaluator : public QObject
 public:
     Evaluator();
 
+public slots:
     QString eval(QString str);
 
 private:

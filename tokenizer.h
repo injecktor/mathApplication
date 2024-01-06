@@ -8,8 +8,6 @@ class Tokenizer : public QObject
     Q_OBJECT
 public:
     Tokenizer(QString input);
-
-public slots:
     QVector<Token> tokenize();
 
 private:

@@ -6,12 +6,12 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    tokenizer = new Tokenizer;
+    evaluator = new Evaluator;
     tokenizerThread = new QThread;
-    tokenizer->moveToThread(tokenizerThread);
+    evaluator->moveToThread(tokenizerThread);
     tokenizerThread->start();
 
-    connect(this, SIGNAL(eval(QString)), tokenizer, SLOT(tokenize(QString)));
+    connect(this, SIGNAL(eval(QString)), evaluator, SLOT(eval(QString)));
 }
 
 MainWindow::~MainWindow()
