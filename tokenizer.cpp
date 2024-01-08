@@ -1,6 +1,6 @@
 #include "tokenizer.h"
 
-Tokenizer::Tokenizer(QString input) : m_str(input.trimmed()) {
+Tokenizer::Tokenizer(QString input) : m_str(input) {
 
 }
 
@@ -22,12 +22,12 @@ QVector<Token> Tokenizer::tokenize() {
                             continue;
                         }
                         else {
-                            qDebug() << "Incorrect input";
+                            qDebug() << "Incorrect input 1";
                             return {};
                         }
                     }
                     else {
-                        qDebug() << "Incorrect input";
+                        qDebug() << "Incorrect input 2";
                         return {};
                     }
                 }
@@ -40,7 +40,7 @@ QVector<Token> Tokenizer::tokenize() {
                     continue;
                 }
                 else if (cur != '-' || !peek().has_value() || !peek().value().isDigit()) {
-                    qDebug() << "Incorrect input";
+                    qDebug() << "Incorrect input 3";
                     return {};
                 }
             }
@@ -92,7 +92,7 @@ QVector<Token> Tokenizer::tokenize() {
                     continue;
                 }
                 else {
-                    qDebug() << "Incorrect input";
+                    qDebug() << "Incorrect input 4";
                     return {};
                 }
             }
@@ -105,7 +105,7 @@ QVector<Token> Tokenizer::tokenize() {
                 continue;
             }
             else {
-                qDebug() << "Incorrect input";
+                qDebug() << "Incorrect input 5";
                 return {};
             }
         }

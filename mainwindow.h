@@ -22,6 +22,8 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    void test();
+
 private slots:
     void getEvaluation(QString);
 
@@ -51,6 +53,8 @@ private slots:
     void on_CEButton_released();
     void on_evalButton_released();
 
+    void on_testButton_released();
+
 signals:
     void eval(QString);
 
@@ -60,5 +64,7 @@ private:
     Evaluator* evaluator;
 
     QThread* tokenizerThread;
+
+    bool isTest;
 };
 #endif // MAINWINDOW_H

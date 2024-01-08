@@ -74,6 +74,7 @@ QString Parser::solve() {
                     numbers.pop_back();
                     numbers.push_back(makeOperation(first, second, symbols.last()));
                     symbols.pop_back();
+                    symbols.push_back(cur);
                 }
             }
         }

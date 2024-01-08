@@ -19,6 +19,7 @@ HEADERS += \
     evaluator.h \
     mainwindow.h \
     parser.h \
+    tests.h \
     tokenizer.h
 
 FORMS += \

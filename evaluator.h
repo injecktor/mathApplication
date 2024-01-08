@@ -10,7 +10,7 @@ public:
     Evaluator();
 
 public slots:
-    void eval(QString str);
+    QString eval(QString str);
 
 signals:
     void returnEvaluation(QString);

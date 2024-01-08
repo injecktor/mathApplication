@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "tests.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -11,8 +12,31 @@ MainWindow::MainWindow(QWidget *parent)
     evaluator->moveToThread(tokenizerThread);
     tokenizerThread->start();
 
-    connect(this, SIGNAL(eval(QString)), evaluator, SLOT(eval(QString)));
     connect(evaluator, SIGNAL(returnEvaluation(QString)), this, SLOT(getEvaluation(QString)));
+
+    isTest = true;
+
+    if (isTest) {
+        connect(this, SIGNAL(eval(QString)), evaluator, SLOT(eval(QString)), Qt::BlockingQueuedConnection);
+        test();
+    }
+    else {
+        connect(this, SIGNAL(eval(QString)), evaluator, SLOT(eval(QString)));
+    }
+
+}
+
+void MainWindow::test() {
+    if (tests.size() != answers.size()) {
+        qDebug() << "Not all tests have answer or too much answers";
+        return;
+    }
+    for (int var = 0; var < tests.size(); ++var) {
+        QString tmp = evaluator->eval(tests.at(var));
+        if (tmp != answers.at(var)) {
+            qDebug() << "Incorrect test: " + QString::number(var) + ". Answer: " + answers.at(var) + ". Evaluated value: " + tmp;
+        }
+    }
 }
 
 MainWindow::~MainWindow()
@@ -22,6 +46,16 @@ MainWindow::~MainWindow()
 
 void MainWindow::getEvaluation(QString answer) {
     ui->display->setText(answer);
+}
+
+void MainWindow::on_evalButton_released()
+{
+    emit eval(ui->display->toPlainText());
+}
+
+void MainWindow::on_testButton_released()
+{
+
 }
 
 void MainWindow::on_zeroButton_released()
@@ -143,10 +177,3 @@ void MainWindow::on_CEButton_released()
 {
     ui->display->setText("");
 }
-
-
-void MainWindow::on_evalButton_released()
-{
-    emit eval(ui->display->toPlainText());
-}
-
