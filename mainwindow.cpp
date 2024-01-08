@@ -15,7 +15,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(evaluator, SIGNAL(returnEvaluation(QString)), this, SLOT(getEvaluation(QString)));
 
-    isTest = false;
+    isTest = true;
+    testNumber = 12;
 
     if (isTest) {
         connect(this, SIGNAL(eval(QString)), evaluator, SLOT(eval(QString)), Qt::BlockingQueuedConnection);
@@ -40,17 +41,28 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 void MainWindow::test() {
-    if (tests.size() != answers.size()) {
-        info.push_back("Not all tests have answer or too much answers");
-        return;
-    }
-    for (int var = 0; var < tests.size(); ++var) {
-        QString tmp = evaluator->eval(tests.at(var));
-        if (tmp == answers.at(var)) {
-            info.push_back("Completed test: " + QString::number(var));
+    if (testNumber != 0) {
+        QString tmp = evaluator->eval(tests.at(testNumber));
+        if (tmp == answers.at(testNumber)) {
+            info.push_back("Completed test: " + QString::number(testNumber));
         }
         else {
-            info.push_back("Incorrect test: " + QString::number(var) + ". Answer: " + answers.at(var) + ". Evaluated value: " + tmp);
+            info.push_back("Incorrect test: " + QString::number(testNumber) + ". Correct answer: " + answers.at(testNumber) + ". Evaluated value: " + tmp);
+        }
+    }
+    else {
+        if (tests.size() != answers.size()) {
+            info.push_back("Not all tests have answer or too much answers");
+            return;
+        }
+        for (int var = 0; var < tests.size(); ++var) {
+            QString tmp = evaluator->eval(tests.at(var));
+            if (tmp == answers.at(var)) {
+                info.push_back("Completed test: " + QString::number(var));
+            }
+            else {
+                info.push_back("Incorrect test: " + QString::number(var) + ". Correct answer: " + answers.at(var) + ". Evaluated value: " + tmp);
+            }
         }
     }
 }

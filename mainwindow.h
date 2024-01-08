@@ -64,6 +64,8 @@ private:
     QThread* tokenizerThread;
     QTimer* infoTimer;
 
+    int testNumber;
+
     bool isTest;
 };
 #endif // MAINWINDOW_H

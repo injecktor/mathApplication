@@ -82,12 +82,18 @@ QString Parser::solve() {
         }
     }
     while (!symbols.isEmpty()) {
-        Token second = numbers.last();
-        numbers.pop_back();
-        Token first = numbers.last();
-        numbers.pop_back();
-        numbers.push_back(makeOperation(first, second, symbols.last()));
-        symbols.pop_back();
+        if (symbols.size() == 1 && symbols.at(0).tokenType == TokenType::minus && numbers.size() == 1) {
+            numbers[0].value.value() *= -1;
+            symbols.pop_back();
+        }
+        else {
+            Token second = numbers.last();
+            numbers.pop_back();
+            Token first = numbers.last();
+            numbers.pop_back();
+            numbers.push_back(makeOperation(first, second, symbols.last()));
+            symbols.pop_back();
+        }
     }
     return QString::number(numbers.at(0).value.value());
 }
