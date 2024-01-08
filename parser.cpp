@@ -1,5 +1,7 @@
 #include "parser.h"
 
+QVector<QString> info;
+
 Parser::Parser(QVector<Token> tokens) :m_tokens(tokens) {
 
 }
@@ -20,14 +22,14 @@ bool Parser::isCorrect() {
                 closeParenCount++;
             }
             else {
-                qDebug() << "Incorrect parentheses";
+                info.push_back("Incorrect parentheses");
                 return false;
             }
         }
     }
     m_index = 0;
     if (openParenCount != closeParenCount) {
-        qDebug() << "Open parenthese's count must be equal close parenthese's count";
+        info.push_back("Open parenthese's count must be equal close parenthese's count");
         return false;
     }
     return true;
@@ -104,20 +106,20 @@ Token Parser::makeOperation(Token first, Token second, Token operation) {
             break;
         case TokenType::division:
             if (second.value.value() == 0.) {
-                qDebug() << "Division by 0";
+                info.push_back("Division by 0");
                 return {.tokenType = TokenType::number, .value = 0};
             }
             result = first.value.value() / second.value.value();
             break;
         case TokenType::power:
             if (first.value.value() == 0. && second.value.value() == 0.) {
-                qDebug() << "0 can't be in 0 power";
+                info.push_back("0 can't be in 0 power");
                 return {.tokenType = TokenType::number, .value = 0};
             }
             result = pow(first.value.value(), second.value.value());
             break;
         default:
-            qDebug() << "Unknown operation";
+            info.push_back("Unknown operation");
             result = 0;
             break;
     }
@@ -151,7 +153,7 @@ int Parser::getPriority(Token token) {
         return 20;
         break;
     default:
-        qDebug() << "Incorrect token priority";
+        info.push_back("Incorrect token priority");
         return 0;
         break;
     }

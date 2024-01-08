@@ -11,10 +11,11 @@ MainWindow::MainWindow(QWidget *parent)
     tokenizerThread = new QThread;
     evaluator->moveToThread(tokenizerThread);
     tokenizerThread->start();
+    infoTimer = new QTimer;
 
     connect(evaluator, SIGNAL(returnEvaluation(QString)), this, SLOT(getEvaluation(QString)));
 
-    isTest = true;
+    isTest = false;
 
     if (isTest) {
         connect(this, SIGNAL(eval(QString)), evaluator, SLOT(eval(QString)), Qt::BlockingQueuedConnection);
@@ -24,17 +25,32 @@ MainWindow::MainWindow(QWidget *parent)
         connect(this, SIGNAL(eval(QString)), evaluator, SLOT(eval(QString)));
     }
 
+    connect(infoTimer, &QTimer::timeout, this, [this]() {
+        while (!info.isEmpty()) {
+            if (ui->textInfo->toPlainText() == "") {
+                ui->textInfo->setPlainText(info.first());
+            }
+            else {
+                ui->textInfo->setPlainText(ui->textInfo->toPlainText() + '\n' + info.first());
+            }
+            info.pop_front();
+        }
+    });
+    infoTimer->start(100);
 }
 
 void MainWindow::test() {
     if (tests.size() != answers.size()) {
-        qDebug() << "Not all tests have answer or too much answers";
+        info.push_back("Not all tests have answer or too much answers");
         return;
     }
     for (int var = 0; var < tests.size(); ++var) {
         QString tmp = evaluator->eval(tests.at(var));
-        if (tmp != answers.at(var)) {
-            qDebug() << "Incorrect test: " + QString::number(var) + ". Answer: " + answers.at(var) + ". Evaluated value: " + tmp;
+        if (tmp == answers.at(var)) {
+            info.push_back("Completed test: " + QString::number(var));
+        }
+        else {
+            info.push_back("Incorrect test: " + QString::number(var) + ". Answer: " + answers.at(var) + ". Evaluated value: " + tmp);
         }
     }
 }
@@ -51,11 +67,6 @@ void MainWindow::getEvaluation(QString answer) {
 void MainWindow::on_evalButton_released()
 {
     emit eval(ui->display->toPlainText());
-}
-
-void MainWindow::on_testButton_released()
-{
-
 }
 
 void MainWindow::on_zeroButton_released()

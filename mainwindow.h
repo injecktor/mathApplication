@@ -5,6 +5,7 @@
 #include <QString>
 #include <QPushButton>
 #include <QThread>
+#include <QTimer>
 
 #include "evaluator.h"
 
@@ -53,8 +54,6 @@ private slots:
     void on_CEButton_released();
     void on_evalButton_released();
 
-    void on_testButton_released();
-
 signals:
     void eval(QString);
 
@@ -62,8 +61,8 @@ private:
     Ui::MainWindow *ui;
 
     Evaluator* evaluator;
-
     QThread* tokenizerThread;
+    QTimer* infoTimer;
 
     bool isTest;
 };

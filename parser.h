@@ -25,6 +25,8 @@ struct Token {
     std::optional<double> value;
 };
 
+extern QVector<QString> info;
+
 class Parser
 {
 public:

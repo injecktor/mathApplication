@@ -22,12 +22,12 @@ QVector<Token> Tokenizer::tokenize() {
                             continue;
                         }
                         else {
-                            qDebug() << "Incorrect input 1";
+                            info.push_back("Incorrect input. Code: 1");
                             return {};
                         }
                     }
                     else {
-                        qDebug() << "Incorrect input 2";
+                        info.push_back("Incorrect input. Code: 2");
                         return {};
                     }
                 }
@@ -40,7 +40,7 @@ QVector<Token> Tokenizer::tokenize() {
                     continue;
                 }
                 else if (cur != '-' || !peek().has_value() || !peek().value().isDigit()) {
-                    qDebug() << "Incorrect input 3";
+                    info.push_back("Incorrect input. Code: 3");
                     return {};
                 }
             }
@@ -79,33 +79,12 @@ QVector<Token> Tokenizer::tokenize() {
                 tokens.push_back({.tokenType = TokenType::closeParen});
                 continue;
             }
-            else if (cur == 'p') {
-                if (peek() == 'i') {
-                    tokens.push_back({.tokenType = TokenType::number, .value = M_PI});
-                    consume();
-                    continue;
-                }
-                else if (peek() == 'h' && peek(1) == 'i') {
-                    tokens.push_back({.tokenType = TokenType::number, .value = 1.6180339887});
-                    consume();
-                    consume();
-                    continue;
-                }
-                else {
-                    qDebug() << "Incorrect input 4";
-                    return {};
-                }
-            }
             else if (cur == '|') {
                 tokens.push_back({.tokenType = TokenType::module});
                 continue;
             }
-            else if (cur == 'e') {
-                tokens.push_back({.tokenType = TokenType::number, .value = 2.7182818284});
-                continue;
-            }
             else {
-                qDebug() << "Incorrect input 5";
+                info.push_back("Incorrect input. Code: 5");
                 return {};
             }
         }
