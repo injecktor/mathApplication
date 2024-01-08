@@ -22,7 +22,7 @@ QString Evaluator::eval(QString str) {
     if (answer == "") {
         info.push_back("Error in parser");
     }
-    info.push_back("Answer: " + answer);
+    info.push_back("Answer: " + answer + '\n');
     emit returnEvaluation(answer);
     return answer;
 }

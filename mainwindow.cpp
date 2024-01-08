@@ -28,12 +28,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(infoTimer, &QTimer::timeout, this, [this]() {
         while (!info.isEmpty()) {
-            if (ui->textInfo->toPlainText() == "") {
-                ui->textInfo->setPlainText(info.first());
-            }
-            else {
-                ui->textInfo->setPlainText(ui->textInfo->toPlainText() + '\n' + info.first());
-            }
+            ui->textInfo->append(info.first());
             info.pop_front();
         }
     });
@@ -44,10 +39,10 @@ void MainWindow::test() {
     if (testNumber != 0) {
         QString tmp = evaluator->eval(tests.at(testNumber));
         if (tmp == answers.at(testNumber)) {
-            info.push_back("Completed test: " + QString::number(testNumber));
+            info.push_back("Completed test: " + QString::number(testNumber) + '\n');
         }
         else {
-            info.push_back("Incorrect test: " + QString::number(testNumber) + ". Correct answer: " + answers.at(testNumber) + ". Evaluated value: " + tmp);
+            info.push_back("Incorrect test: " + QString::number(testNumber) + ". Correct answer: " + answers.at(testNumber) + ". Evaluated value: " + tmp + '\n');
         }
     }
     else {
@@ -74,6 +69,8 @@ MainWindow::~MainWindow()
 
 void MainWindow::getEvaluation(QString answer) {
     ui->display->setText(answer);
+    // ui->textInfo->verticalScrollBar()->setValue(ui->textInfo->verticalScrollBar()->maximum());
+    // ui->textInfo->verticalScrollBar()->
 }
 
 void MainWindow::on_evalButton_released()

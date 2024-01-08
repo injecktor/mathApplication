@@ -6,6 +6,7 @@
 #include <QPushButton>
 #include <QThread>
 #include <QTimer>
+#include <QScrollBar>
 
 #include "evaluator.h"
 
