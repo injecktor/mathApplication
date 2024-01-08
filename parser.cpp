@@ -54,12 +54,18 @@ QString Parser::solve() {
                 }
                 else if (cur.tokenType == TokenType::closeParen) {
                     while (symbols.last().tokenType != TokenType::openParen) {
-                        Token second = numbers.last();
-                        numbers.pop_back();
-                        Token first = numbers.last();
-                        numbers.pop_back();
-                        numbers.push_back(makeOperation(first, second, symbols.last()));
-                        symbols.pop_back();
+                        if (numbers.size() > 1) {
+                            Token second = numbers.last();
+                            numbers.pop_back();
+                            Token first = numbers.last();
+                            numbers.pop_back();
+                            numbers.push_back(makeOperation(first, second, symbols.last()));
+                            symbols.pop_back();
+                        }
+                        else {
+                            numbers.last().value.value() *= -1;
+                            symbols.pop_back();
+                        }
                     }
                     symbols.pop_back();
                 }
