@@ -10,7 +10,10 @@ public:
     Evaluator();
 
 public slots:
-    QString eval(QString str);
+    void eval(QString str);
+
+signals:
+    void returnEvaluation(QString);
 
 private:
     Tokenizer* tokenizer;

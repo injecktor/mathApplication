@@ -39,6 +39,9 @@ private:
 
     Token consume();
     std::optional<Token> peek(int offset = 0);
+
+    int getPriority(Token token);
+    Token makeOperation(Token first, Token second, Token operation);
 };
 
 #endif // PARSER_H

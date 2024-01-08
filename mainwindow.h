@@ -23,6 +23,8 @@ public:
     ~MainWindow();
 
 private slots:
+    void getEvaluation(QString);
+
     void on_zeroButton_released();
     void on_oneButton_released();
     void on_twoButton_released();
@@ -47,7 +49,6 @@ private slots:
     void on_phiButton_released();
     void on_CButton_released();
     void on_CEButton_released();
-
     void on_evalButton_released();
 
 signals:

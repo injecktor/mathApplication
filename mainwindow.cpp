@@ -12,11 +12,16 @@ MainWindow::MainWindow(QWidget *parent)
     tokenizerThread->start();
 
     connect(this, SIGNAL(eval(QString)), evaluator, SLOT(eval(QString)));
+    connect(evaluator, SIGNAL(returnEvaluation(QString)), this, SLOT(getEvaluation(QString)));
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::getEvaluation(QString answer) {
+    ui->display->setText(answer);
 }
 
 void MainWindow::on_zeroButton_released()
