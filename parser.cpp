@@ -42,7 +42,28 @@ QString Parser::solve() {
     while (m_index < m_tokens.size()) {
         Token cur = consume();
         if (cur.value.has_value()) {
-            numbers.push_back(cur);
+            if (peek().has_value() && peek().value().tokenType == TokenType::module) {
+                while (symbols.last().tokenType != TokenType::module) {
+                    if (numbers.size() > 1) {
+                        Token second = numbers.last();
+                        numbers.pop_back();
+                        Token first = numbers.last();
+                        numbers.pop_back();
+                        numbers.push_back(makeOperation(first, second, symbols.last()));
+                        symbols.pop_back();
+                    }
+                    else {
+                        numbers.last().value.value() *= -1;
+                        symbols.pop_back();
+                    }
+                }
+                symbols.pop_back();
+                numbers.last().value.value() = abs(numbers.last().value.value());
+                consume();
+            }
+            else {
+                numbers.push_back(cur);
+            }
         }
         else {
             if (symbols.isEmpty()) {
@@ -68,6 +89,9 @@ QString Parser::solve() {
                         }
                     }
                     symbols.pop_back();
+                }
+                else if (cur.tokenType == TokenType::module){
+                    symbols.push_back(cur);
                 }
                 else if (getPriority(cur) > getPriority(symbols.last())) {
                     symbols.push_back(cur);
@@ -176,7 +200,7 @@ Token Parser::consume() {
 }
 
 std::optional<Token> Parser::peek(int offset) {
-    if (m_index + offset >= m_tokens.size()) {
+    if (m_index + offset >= m_tokens.size() || m_index + offset < 0) {
         return {};
     }
     else {

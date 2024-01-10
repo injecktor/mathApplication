@@ -8,7 +8,8 @@ QVector<Token> Tokenizer::tokenize() {
     QVector<Token> tokens;
     while (m_index < m_str.length()) {
         QChar cur = consume();
-        if (cur.isDigit() || (m_index == 1 && !cur.isDigit()) || (cur == '(' && peek().has_value() && peek().value() == '-')) {
+        if (cur.isDigit() || (m_index == 1 && cur == '-') || (cur == '(' && peek().has_value() && peek().value() == '-') ||
+            (cur == '|' && peek().has_value() && peek().value() == '-')) {
             QString number;
             if (!cur.isDigit()) {
                 if (cur == '(' && peek().has_value() && peek().value() == '-') {
@@ -38,6 +39,10 @@ QVector<Token> Tokenizer::tokenize() {
                 else if (cur == '-' && peek().has_value() && peek().value() == '(') {
                     tokens.push_back({.tokenType = TokenType::minus});
                     continue;
+                }
+                else if (cur == '|' && peek().has_value() && peek().value() == '-') {
+                    tokens.push_back({.tokenType = TokenType::module});
+                    cur = consume();
                 }
                 else if (cur != '-' || !peek().has_value() || !peek().value().isDigit()) {
                     info.push_back("Incorrect input. Code: 3");

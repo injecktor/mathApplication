@@ -16,7 +16,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(evaluator, SIGNAL(returnEvaluation(QString)), this, SLOT(getEvaluation(QString)));
 
     isTest = true;
-    testNumber = 0;
+    testNumber = 22;
 
     if (isTest) {
         connect(this, SIGNAL(eval(QString)), evaluator, SLOT(eval(QString)), Qt::BlockingQueuedConnection);

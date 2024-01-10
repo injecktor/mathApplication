@@ -17,7 +17,8 @@ typedef enum {
     power,
     openParen,
     closeParen,
-    module
+    openModule,
+    closeModule
 } TokenType;
 
 struct Token {
