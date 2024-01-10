@@ -1,6 +1,7 @@
 #include "parser.h"
 
 QVector<QString> info;
+bool isError;
 
 Parser::Parser(QVector<Token> tokens) :m_tokens(tokens) {
 
@@ -23,6 +24,7 @@ bool Parser::isCorrect() {
             }
             else {
                 info.push_back("Incorrect parentheses");
+                isError = true;
                 return false;
             }
         }
@@ -30,6 +32,7 @@ bool Parser::isCorrect() {
     m_index = 0;
     if (openParenCount != closeParenCount) {
         info.push_back("Open parenthese's count must be equal close parenthese's count");
+        isError = true;
         return false;
     }
     return true;
@@ -37,33 +40,11 @@ bool Parser::isCorrect() {
 
 QString Parser::solve() {
     if (!isCorrect()) return "";
-    QVector<Token> numbers;
-    QVector<Token> symbols;
     while (m_index < m_tokens.size()) {
+        if (isError) return "";
         Token cur = consume();
         if (cur.value.has_value()) {
-            if (peek().has_value() && peek().value().tokenType == TokenType::module) {
-                while (symbols.last().tokenType != TokenType::module) {
-                    if (numbers.size() > 1) {
-                        Token second = numbers.last();
-                        numbers.pop_back();
-                        Token first = numbers.last();
-                        numbers.pop_back();
-                        numbers.push_back(makeOperation(first, second, symbols.last()));
-                        symbols.pop_back();
-                    }
-                    else {
-                        numbers.last().value.value() *= -1;
-                        symbols.pop_back();
-                    }
-                }
-                symbols.pop_back();
-                numbers.last().value.value() = abs(numbers.last().value.value());
-                consume();
-            }
-            else {
-                numbers.push_back(cur);
-            }
+            numbers.push_back(cur);
         }
         else {
             if (symbols.isEmpty()) {
@@ -76,12 +57,8 @@ QString Parser::solve() {
                 else if (cur.tokenType == TokenType::closeParen) {
                     while (symbols.last().tokenType != TokenType::openParen) {
                         if (numbers.size() > 1) {
-                            Token second = numbers.last();
-                            numbers.pop_back();
-                            Token first = numbers.last();
-                            numbers.pop_back();
-                            numbers.push_back(makeOperation(first, second, symbols.last()));
-                            symbols.pop_back();
+                            numbers.push_back(makeOperation());
+                            if (isError) return "";
                         }
                         else {
                             numbers.last().value.value() *= -1;
@@ -90,8 +67,22 @@ QString Parser::solve() {
                     }
                     symbols.pop_back();
                 }
-                else if (cur.tokenType == TokenType::module){
+                else if (cur.tokenType == TokenType::openModule){
                     symbols.push_back(cur);
+                }
+                else if (cur.tokenType == TokenType::closeModule) {
+                    while (symbols.last().tokenType != TokenType::openModule) {
+                        if (numbers.size() > 1) {
+                            numbers.push_back(makeOperation());
+                            if (isError) return "";
+                        }
+                        else {
+                            numbers.last().value.value() *= -1;
+                            symbols.pop_back();
+                        }
+                    }
+                    numbers.last().value.value() = abs(numbers.last().value.value());
+                    symbols.pop_back();
                 }
                 else if (getPriority(cur) > getPriority(symbols.last())) {
                     symbols.push_back(cur);
@@ -99,13 +90,12 @@ QString Parser::solve() {
                 else if (symbols.last().tokenType == TokenType::openParen) {
                     symbols.push_back(cur);
                 }
+                else if (symbols.last().tokenType == TokenType::openModule) {
+                    symbols.push_back(cur);
+                }
                 else {
-                    Token second = numbers.last();
-                    numbers.pop_back();
-                    Token first = numbers.last();
-                    numbers.pop_back();
-                    numbers.push_back(makeOperation(first, second, symbols.last()));
-                    symbols.pop_back();
+                    numbers.push_back(makeOperation());
+                    if (isError) return "";
                     symbols.push_back(cur);
                 }
             }
@@ -117,18 +107,20 @@ QString Parser::solve() {
             symbols.pop_back();
         }
         else {
-            Token second = numbers.last();
-            numbers.pop_back();
-            Token first = numbers.last();
-            numbers.pop_back();
-            numbers.push_back(makeOperation(first, second, symbols.last()));
-            symbols.pop_back();
+            numbers.push_back(makeOperation());
+            if (isError) return "";
         }
     }
     return QString::number(numbers.at(0).value.value());
 }
 
-Token Parser::makeOperation(Token first, Token second, Token operation) {
+Token Parser::makeOperation() {
+    Token second = numbers.last();
+    numbers.pop_back();
+    Token first = numbers.last();
+    numbers.pop_back();
+    Token operation = symbols.last();
+    symbols.pop_back();
     double result;
     switch (operation.tokenType) {
         case TokenType::plus:
@@ -143,20 +135,23 @@ Token Parser::makeOperation(Token first, Token second, Token operation) {
         case TokenType::division:
             if (second.value.value() == 0.) {
                 info.push_back("Division by 0");
-                return {.tokenType = TokenType::number, .value = 0};
+                isError = true;
+                return {};
             }
             result = first.value.value() / second.value.value();
             break;
         case TokenType::power:
             if (first.value.value() == 0. && second.value.value() == 0.) {
                 info.push_back("0 can't be in 0 power");
-                return {.tokenType = TokenType::number, .value = 0};
+                isError = true;
+                return {};
             }
             result = pow(first.value.value(), second.value.value());
             break;
         default:
             info.push_back("Unknown operation");
-            result = 0;
+            isError = true;
+            return {};
             break;
     }
     return {.tokenType = TokenType::number, .value = result};
@@ -185,7 +180,10 @@ int Parser::getPriority(Token token) {
     case TokenType::closeParen:
         return 20;
         break;
-    case TokenType::module:
+    case TokenType::openModule:
+        return 20;
+        break;
+    case TokenType::closeModule:
         return 20;
         break;
     default:

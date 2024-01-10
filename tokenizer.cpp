@@ -7,94 +7,118 @@ Tokenizer::Tokenizer(QString input) : m_str(input) {
 QVector<Token> Tokenizer::tokenize() {
     QVector<Token> tokens;
     while (m_index < m_str.length()) {
+        if (isError) return {};
         QChar cur = consume();
-        if (cur.isDigit() || (m_index == 1 && cur == '-') || (cur == '(' && peek().has_value() && peek().value() == '-') ||
-            (cur == '|' && peek().has_value() && peek().value() == '-')) {
-            QString number;
-            if (!cur.isDigit()) {
-                if (cur == '(' && peek().has_value() && peek().value() == '-') {
-                    if (peek(1).has_value()) {
-                        if (peek(1).value().isDigit()) {
-                            tokens.push_back({.tokenType = TokenType::openParen});
-                            cur = consume();
-                        }
-                        else if (peek(1).value() == '(') {
-                            tokens.push_back({.tokenType = TokenType::openParen});
-                            continue;
-                        }
-                        else {
-                            info.push_back("Incorrect input. Code: 1");
-                            return {};
-                        }
-                    }
-                    else {
-                        info.push_back("Incorrect input. Code: 2");
-                        return {};
-                    }
-                }
-                else if (cur == '(' && peek().has_value() && peek().value().isDigit()) {
-                    tokens.push_back({.tokenType = TokenType::openParen});
-                    continue;
-                }
-                else if (cur == '-' && peek().has_value() && peek().value() == '(') {
-                    tokens.push_back({.tokenType = TokenType::minus});
-                    continue;
-                }
-                else if (cur == '|' && peek().has_value() && peek().value() == '-') {
-                    tokens.push_back({.tokenType = TokenType::module});
-                    cur = consume();
-                }
-                else if (cur != '-' || !peek().has_value() || !peek().value().isDigit()) {
-                    info.push_back("Incorrect input. Code: 3");
-                    return {};
-                }
-            }
-            number += cur;
-            while (peek().has_value() && (peek().value().isDigit() || peek().value() == '.')) {
-                number += consume();
-            }
-            tokens.push_back({.tokenType = TokenType::number, .value = number.toDouble()});
+        if (cur.isDigit()) {
+            tokens.push_back({.tokenType = TokenType::number, .value = takeWholeNumber()});
         }
-        else {
-            if (cur == '+') {
-                tokens.push_back({.tokenType = TokenType::plus});
-                continue;
-            }
-            else if (cur == '-') {
-                tokens.push_back({.tokenType = TokenType::minus});
-                continue;
-            }
-            else if (cur == '*') {
-                tokens.push_back({.tokenType = TokenType::multiplication});
-                continue;
-            }
-            else if (cur == '/') {
-                tokens.push_back({.tokenType = TokenType::division});
-                continue;
-            }
-            else if (cur == '^') {
-                tokens.push_back({.tokenType = TokenType::power});
-                continue;
-            }
-            else if (cur == '(') {
-                tokens.push_back({.tokenType = TokenType::openParen});
-                continue;
-            }
-            else if (cur == ')') {
-                tokens.push_back({.tokenType = TokenType::closeParen});
-                continue;
-            }
-            else if (cur == '|') {
-                tokens.push_back({.tokenType = TokenType::module});
-                continue;
+        else if (cur == '-') {
+            if (isMinusNumber(-1)) {
+                if (isError) return {};
+                tokens.push_back({.tokenType = TokenType::number, .value = takeWholeNumber()});
             }
             else {
-                info.push_back("Incorrect input. Code: 5");
-                return {};
+                if (isError) return {};
+                tokens.push_back({.tokenType = TokenType::minus});
             }
+        }
+        else if (cur == '+') {
+            tokens.push_back({.tokenType = TokenType::plus});
+        }
+        else if (cur == '*') {
+            tokens.push_back({.tokenType = TokenType::multiplication});
+        }
+        else if (cur == '/') {
+            tokens.push_back({.tokenType = TokenType::division});
+        }
+        else if (cur == '^') {
+            tokens.push_back({.tokenType = TokenType::power});
+        }
+        else if (cur == '(') {
+            tokens.push_back({.tokenType = TokenType::openParen});
+        }
+        else if (cur == ')') {
+            tokens.push_back({.tokenType = TokenType::closeParen});
+        }
+        else if (cur == '|') {
+            if (isOpenModule(-1)) {
+                if (isError) return {};
+                tokens.push_back({.tokenType = TokenType::openModule});
+            }
+            else {
+                if (isError) return {};
+                tokens.push_back({.tokenType = TokenType::closeModule});
+            }
+        }
+        else {
+            info.push_back("Incorrect input. Code: 5");
+            isError = true;
         }
     }
     return tokens;
+}
+
+bool Tokenizer::isOpenModule(int index) {
+    if (peek(index).value() != '|') {
+        info.push_back("Working with not a module");
+        isError = true;
+    }
+    else if (!peek(index - 1).has_value()) {
+        return true;
+    }
+    else if (peek(index - 1).value().isDigit() || peek(index - 1).value() == ')') {
+        return false;
+    }
+    return true;
+}
+
+bool Tokenizer::isMinusNumber(int index) {
+    if (peek(index).value() != '-') {
+        info.push_back("Working with not a minus");
+        isError = true;
+    }
+    else if (!peek(index - 1).has_value()) {
+        if (peek(index + 1).has_value()) {
+            if (peek(index + 1).value().isDigit()) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            info.push_back("Incorrect input. Code: 7");
+            isError = true;
+            return false;
+        }
+    }
+    else if (peek(index - 1).value().isDigit() || peek(index - 1).value() == ')') {
+        return false;
+    }
+    else if (peek(index - 1).value() == '(' || (peek(index - 1).value() == '|' && !isOpenModule(index - 1))) {
+        if (peek(index + 1).has_value()) {
+            if (peek(index + 1).value().isDigit()) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            info.push_back("Incorrect input. Code: 6");
+            isError = true;
+        }
+    }
+    return true;
+}
+
+double Tokenizer::takeWholeNumber() {
+    QString number;
+    number += peek(-1).value();
+    while (peek().has_value() && (peek().value().isDigit() || peek().value() == '.')) {
+        number += consume();
+    }
+    return number.toDouble();
 }
 
 QChar Tokenizer::consume() {
@@ -102,7 +126,7 @@ QChar Tokenizer::consume() {
 }
 
 std::optional<QChar> Tokenizer::peek(int offset) {
-    if (m_index + offset >= m_str.length()) {
+    if (m_index + offset >= m_str.length() || m_index + offset < 0) {
         return {};
     }
     else {

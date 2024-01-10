@@ -27,6 +27,7 @@ struct Token {
 };
 
 extern QVector<QString> info;
+extern bool isError;
 
 class Parser
 {
@@ -37,14 +38,16 @@ public:
     QString solve();
 
 private:
-    unsigned int m_index = 0;
+    int m_index = 0;
     QVector<Token> m_tokens;
+    QVector<Token> numbers;
+    QVector<Token> symbols;
 
     Token consume();
     std::optional<Token> peek(int offset = 0);
 
     int getPriority(Token token);
-    Token makeOperation(Token first, Token second, Token operation);
+    Token makeOperation();
 };
 
 #endif // PARSER_H
