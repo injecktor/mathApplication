@@ -33,6 +33,11 @@ MainWindow::MainWindow(QWidget *parent)
     }
 
     connect(infoTimer, &QTimer::timeout, this, [this]() {
+        static int i = 0;
+        while (i < errors.size()) {
+            ui->textInfo->append(errors.at(i));
+            i++;
+        }
         while (!info.isEmpty()) {
             ui->textInfo->append(info.first());
             info.pop_front();
@@ -48,12 +53,12 @@ void MainWindow::test() {
             info.push_back("Completed test: " + QString::number(testNumber) + '\n');
         }
         else {
-            info.push_back("Incorrect test: " + QString::number(testNumber) + ". Correct answer: " + answers.at(testNumber) + ". Evaluated value: " + tmp + '\n');
+            errors.push_back("Incorrect test: " + QString::number(testNumber) + ". Correct answer: " + answers.at(testNumber) + ". Evaluated value: " + tmp + '\n');
         }
     }
     else {
         if (tests.size() != answers.size()) {
-            info.push_back("Not all tests have answer or too much answers");
+            errors.push_back("Not all tests have answer or too much answers");
             return;
         }
         for (int var = 0; var < tests.size(); ++var) {
@@ -62,7 +67,7 @@ void MainWindow::test() {
                 info.push_back("Completed test: " + QString::number(var));
             }
             else {
-                info.push_back("Incorrect test: " + QString::number(var) + ". Correct answer: " + answers.at(var) + ". Evaluated value: " + tmp);
+                errors.push_back("Incorrect test: " + QString::number(var) + ". Correct answer: " + answers.at(var) + ". Evaluated value: " + tmp);
             }
         }
     }
@@ -112,8 +117,7 @@ void MainWindow::showFrame(QVector<int> frames) {
                 ui->equationFrame->show();
                 break;
             default:
-                info.push_back("Unknown frame");
-                isError = true;
+                errors.push_back("Unknown frame");
             }
         }
     }

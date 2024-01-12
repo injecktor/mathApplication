@@ -35,7 +35,8 @@ struct Token {
 };
 
 extern QVector<QString> info;
-extern bool isError;
+extern QVector<QString> errors;
+extern bool isError();
 
 
 class Parser

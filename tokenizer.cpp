@@ -7,18 +7,18 @@ Tokenizer::Tokenizer(QString input, int mode) : m_str(input), m_mode(mode) {
 QVector<Token> Tokenizer::tokenize() {
     QVector<Token> tokens;
     while (m_index < m_str.length()) {
-        if (isError) return {};
+        if (isError()) return {};
         QChar cur = consume();
         if (cur.isDigit()) {
             tokens.push_back({.tokenType = TokenType::number, .value = takeWholeNumber()});
         }
         else if (cur == '-') {
             if (isMinusNumber(-1)) {
-                if (isError) return {};
+                if (isError()) return {};
                 tokens.push_back({.tokenType = TokenType::number, .value = takeWholeNumber()});
             }
             else {
-                if (isError) return {};
+                if (isError()) return {};
                 tokens.push_back({.tokenType = TokenType::minus});
             }
         }
@@ -42,26 +42,27 @@ QVector<Token> Tokenizer::tokenize() {
         }
         else if (cur == '|') {
             if (isOpenModule(-1)) {
-                if (isError) return {};
+                if (isError()) return {};
                 tokens.push_back({.tokenType = TokenType::openModule});
             }
             else {
-                if (isError) return {};
+                if (isError()) return {};
                 tokens.push_back({.tokenType = TokenType::closeModule});
             }
         }
         else {
-            info.push_back("Incorrect input. Code: 5");
-            isError = true;
+            errors.push_back("Incorrect input. Code: 5");
         }
     }
     return tokens;
 }
 
 bool Tokenizer::isOpenModule(int index) {
+    if (!peek(index).has_value()) {
+        errors.push_back("Incorrect index in isOpenModule");
+    }
     if (peek(index).value() != '|') {
-        info.push_back("Working with not a module");
-        isError = true;
+        errors.push_back("Working with not a module");
     }
     else if (!peek(index - 1).has_value()) {
         return true;
@@ -85,9 +86,11 @@ bool Tokenizer::isOpenModule(int index) {
 }
 
 bool Tokenizer::isMinusNumber(int index) {
+    if (!peek(index).has_value()) {
+        errors.push_back("Incorrect index in isMinusNumber");
+    }
     if (peek(index).value() != '-') {
-        info.push_back("Working with not a minus");
-        isError = true;
+        errors.push_back("Working with not a minus");
     }
     else if (!peek(index - 1).has_value()) {
         if (peek(index + 1).has_value()) {
@@ -103,12 +106,11 @@ bool Tokenizer::isMinusNumber(int index) {
             }
         }
         else {
-            info.push_back("Incorrect input. Code: 7");
-            isError = true;
+            errors.push_back("Incorrect input. Code: 7");
             return false;
         }
     }
-    else if (peek(index - 1).value().isDigit() || peek(index - 1).value() == ')') {
+    else if (peek(index - 1).value().isDigit() || peek(index - 1).value() == ')' || (peek(index - 1).value() == '|' && !isOpenModule(index - 1))) {
         return false;
     }
     else if (isX(index - 1)) {
@@ -129,8 +131,7 @@ bool Tokenizer::isMinusNumber(int index) {
             }
         }
         else {
-            info.push_back("Incorrect input. Code: 6");
-            isError = true;
+            errors.push_back("Incorrect input. Code: 6");
         }
     }
     return true;
@@ -164,12 +165,11 @@ bool Tokenizer::isBitSet(int bit) {
 }
 
 bool Tokenizer::isX(int index) {
-    if (index >= m_str.size() || index < 0) {
-        info.push_back("Incorrect index in isX");
-        isError = true;
+    if (!peek(index).has_value()) {
+        errors.push_back("Incorrect index in isX");
         return true;
     }
-    if (m_str.at(index) == 'x') {
+    if (peek(index).value() == 'x') {
         return true;
     }
     return false;
@@ -177,7 +177,6 @@ bool Tokenizer::isX(int index) {
 
 void Tokenizer::checkIfEquation() {
     if (!isEquation) {
-        info.push_back("It's not an equation mode");
-        isError = true;
+        errors.push_back("It's not an equation mode");
     }
 }

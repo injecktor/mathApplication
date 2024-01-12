@@ -16,13 +16,13 @@ QString Evaluator::eval(QString str) {
     tokenizer = new Tokenizer(string, m_mode);
     QVector<Token> tokens = tokenizer->tokenize();
     if (tokens.isEmpty()) {
-        info.push_back("Tokenization gone wrong");
+        errors.push_back("Tokenization gone wrong");
         return "";
     }
     parser = new Parser(tokens, m_mode);
     QString answer = parser->solve();
     if (answer == "") {
-        info.push_back("Error in parser");
+        errors.push_back("Error in parser");
     }
     info.push_back("Answer: " + answer + '\n');
     emit returnEvaluation(answer);

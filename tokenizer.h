@@ -25,6 +25,7 @@ private:
     bool isX(int index);
     double takeWholeNumber();
     bool isBitSet(int bit);
+    void checkIfEquation();
 };
 
 #endif // TOKENIZER_H

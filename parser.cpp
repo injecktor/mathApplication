@@ -1,7 +1,7 @@
 #include "parser.h"
 
 QVector<QString> info;
-bool isError;
+QVector<QString> errors;
 
 Parser::Parser(QVector<Token> tokens, int mode) :m_tokens(tokens), m_mode(mode) {
 
@@ -23,16 +23,14 @@ bool Parser::isCorrect() {
                 closeParenCount++;
             }
             else {
-                info.push_back("Incorrect parentheses");
-                isError = true;
+                errors.push_back("Incorrect parentheses");
                 return false;
             }
         }
     }
     m_index = 0;
     if (openParenCount != closeParenCount) {
-        info.push_back("Open parenthese's count must be equal close parenthese's count");
-        isError = true;
+        errors.push_back("Open parenthese's count must be equal close parenthese's count");
         return false;
     }
     return true;
@@ -41,7 +39,7 @@ bool Parser::isCorrect() {
 QString Parser::solve() {
     if (!isCorrect()) return "";
     while (m_index < m_tokens.size()) {
-        if (isError) return "";
+        if (isError()) return "";
         Token cur = consume();
         if (cur.value.has_value()) {
             numbers.push_back(cur);
@@ -58,7 +56,7 @@ QString Parser::solve() {
                     while (symbols.last().tokenType != TokenType::openParen) {
                         if (numbers.size() > 1) {
                             numbers.push_back(makeOperation());
-                            if (isError) return "";
+                            if (isError()) return "";
                         }
                         else {
                             numbers.last().value.value() *= -1;
@@ -74,7 +72,7 @@ QString Parser::solve() {
                     while (symbols.last().tokenType != TokenType::openModule) {
                         if (numbers.size() > 1) {
                             numbers.push_back(makeOperation());
-                            if (isError) return "";
+                            if (isError()) return "";
                         }
                         else {
                             numbers.last().value.value() *= -1;
@@ -85,6 +83,7 @@ QString Parser::solve() {
                     symbols.pop_back();
                 }
                 else if (getPriority(cur) > getPriority(symbols.last())) {
+                    if (isError()) return "";
                     symbols.push_back(cur);
                 }
                 else if (symbols.last().tokenType == TokenType::openParen) {
@@ -95,7 +94,7 @@ QString Parser::solve() {
                 }
                 else {
                     numbers.push_back(makeOperation());
-                    if (isError) return "";
+                    if (isError()) return "";
                     symbols.push_back(cur);
                 }
             }
@@ -108,7 +107,7 @@ QString Parser::solve() {
         }
         else {
             numbers.push_back(makeOperation());
-            if (isError) return "";
+            if (isError()) return "";
         }
     }
     return QString::number(numbers.at(0).value.value());
@@ -134,23 +133,20 @@ Token Parser::makeOperation() {
             break;
         case TokenType::division:
             if (second.value.value() == 0.) {
-                info.push_back("Division by 0");
-                isError = true;
+                errors.push_back("Division by 0");
                 return {};
             }
             result = first.value.value() / second.value.value();
             break;
         case TokenType::power:
             if (first.value.value() == 0. && second.value.value() == 0.) {
-                info.push_back("0 can't be in 0 power");
-                isError = true;
+                errors.push_back("0 can't be in 0 power");
                 return {};
             }
             result = pow(first.value.value(), second.value.value());
             break;
         default:
-            info.push_back("Unknown operation");
-            isError = true;
+            errors.push_back("Unknown operation");
             return {};
             break;
     }
@@ -187,7 +183,7 @@ int Parser::getPriority(Token token) {
         return 20;
         break;
     default:
-        info.push_back("Incorrect token priority");
+        errors.push_back("Incorrect token priority");
         return 0;
         break;
     }
@@ -209,4 +205,11 @@ std::optional<Token> Parser::peek(int offset) {
 bool Parser::isBitSet(int bit) {
     if (m_mode & (1 << bit)) return true;
     return false;
+}
+
+bool isError() {
+    if (errors.size() == 0) {
+        return false;
+    }
+    return true;
 }
