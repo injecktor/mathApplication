@@ -10,8 +10,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     hideAll();
     showFrame({Frames::regularCalculatorFrame});
-
-    m_mode = setMode({Modes::evaluation});
+    setMode({Modes::evaluation});
 
     evaluator = new Evaluator(m_mode);
     tokenizerThread = new QThread;
@@ -33,14 +32,14 @@ MainWindow::MainWindow(QWidget *parent)
     }
 
     connect(infoTimer, &QTimer::timeout, this, [this]() {
+        while (!info.isEmpty()) {
+            ui->textInfo->append(info.first());
+            info.pop_front();
+        }
         static int i = 0;
         while (i < errors.size()) {
             ui->textInfo->append(errors.at(i));
             i++;
-        }
-        while (!info.isEmpty()) {
-            ui->textInfo->append(info.first());
-            info.pop_front();
         }
     });
     infoTimer->start(100);
@@ -48,26 +47,26 @@ MainWindow::MainWindow(QWidget *parent)
 
 void MainWindow::test() {
     if (testNumber != 0) {
-        QString tmp = evaluator->eval(tests.at(testNumber));
-        if (tmp == answers.at(testNumber)) {
+        QString tmp = evaluator->eval(testsRegularCalculator.at(testNumber));
+        if (tmp == answersRegularCalculator.at(testNumber)) {
             info.push_back("Completed test: " + QString::number(testNumber) + '\n');
         }
         else {
-            errors.push_back("Incorrect test: " + QString::number(testNumber) + ". Correct answer: " + answers.at(testNumber) + ". Evaluated value: " + tmp + '\n');
+            errors.push_back("Incorrect test: " + QString::number(testNumber) + ". Correct answer: " + answersRegularCalculator.at(testNumber) + ". Evaluated value: " + tmp + '\n');
         }
     }
     else {
-        if (tests.size() != answers.size()) {
+        if (testsRegularCalculator.size() != answersRegularCalculator.size()) {
             errors.push_back("Not all tests have answer or too much answers");
             return;
         }
-        for (int var = 0; var < tests.size(); ++var) {
-            QString tmp = evaluator->eval(tests.at(var));
-            if (tmp == answers.at(var)) {
+        for (int var = 0; var < testsRegularCalculator.size(); ++var) {
+            QString tmp = evaluator->eval(testsRegularCalculator.at(var));
+            if (tmp == answersRegularCalculator.at(var)) {
                 info.push_back("Completed test: " + QString::number(var));
             }
             else {
-                errors.push_back("Incorrect test: " + QString::number(var) + ". Correct answer: " + answers.at(var) + ". Evaluated value: " + tmp);
+                errors.push_back("Incorrect test: " + QString::number(var) + ". Correct answer: " + answersRegularCalculator.at(var) + ". Evaluated value: " + tmp);
             }
         }
     }
@@ -82,22 +81,24 @@ void MainWindow::getEvaluation(QString answer) {
     ui->display->setText(answer);
 }
 
-int MainWindow::setMode(QVector<int> modes) {
+void MainWindow::setMode(QVector<int> modes) {
     int mode = 0;
     for (int var = 0; var < modes.size(); ++var) {
         mode |= (1 << modes.at(var));
     }
-    return mode;
+    m_mode = mode;
 }
 
 void MainWindow::on_radioRegularCalculator_released()
 {
     showFrame({Frames::regularCalculatorFrame});
+    setMode({Modes::evaluation});
 }
 
 void MainWindow::on_radioEquation_released()
 {
     showFrame({Frames::equationFrame});
+    setMode({Modes::evaluation | Modes::equation});
 }
 
 void MainWindow::showFrame(QVector<int> frames) {

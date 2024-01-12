@@ -4,7 +4,7 @@
 #include <QString>
 #include <QVector>
 
-QVector<QString> tests = {
+QVector<QString> testsRegularCalculator = {
     "1 + 2 * ( 3 - 4 )", //0
     "8/2*(2+2)",
     "8 / 4*(3 - 1)",
@@ -41,7 +41,7 @@ QVector<QString> tests = {
     "|1 - 9|-1",
 };
 
-QVector<QString> answers = {
+QVector<QString> answersRegularCalculator = {
     "-1", //0
     "16",
     "4",

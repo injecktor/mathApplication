@@ -48,7 +48,7 @@ private:
     int m_frame;
     int m_frameCount = 2;
 
-    int setMode(QVector<int> modes);
+    void setMode(QVector<int> modes);
     void showFrame(QVector<int> frames);
     void hideAll();
 

@@ -8,6 +8,7 @@ class Evaluator : public QObject
     Q_OBJECT
 public:
     Evaluator(int mode);
+    void setMode(int mode);
 
 public slots:
     QString eval(QString str);
@@ -19,6 +20,7 @@ private:
     Tokenizer* tokenizer;
     Parser* parser;
     int m_mode;
+    bool isStarted = false;
 
     bool isEquation;
 

@@ -50,6 +50,14 @@ QVector<Token> Tokenizer::tokenize() {
                 tokens.push_back({.tokenType = TokenType::closeModule});
             }
         }
+        else if (isX(cur)) {
+            checkIfEquation();
+            tokens.push_back({.tokenType = TokenType::x});
+        }
+        else if (cur == '=') {
+            checkIfEquation();
+            tokens.push_back({.tokenType = TokenType::equal});
+        }
         else {
             errors.push_back("Incorrect input. Code: 5");
         }
@@ -117,7 +125,7 @@ bool Tokenizer::isMinusNumber(int index) {
         checkIfEquation();
         return false;
     }
-    else if (peek(index - 1).value() == '(' || (peek(index - 1).value() == '|' && isOpenModule(index - 1))) {
+    else if (peek(index - 1).value() == '(' || (peek(index - 1).value() == '|' && isOpenModule(index - 1)) || peek(index - 1).value() == '=') {
         if (peek(index + 1).has_value()) {
             if (peek(index + 1).value().isDigit()) {
                 return true;
@@ -170,6 +178,13 @@ bool Tokenizer::isX(int index) {
         return true;
     }
     if (peek(index).value() == 'x') {
+        return true;
+    }
+    return false;
+}
+
+bool Tokenizer::isX(QChar character) {
+    if (character == 'x') {
         return true;
     }
     return false;

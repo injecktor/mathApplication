@@ -9,8 +9,12 @@ Parser::Parser(QVector<Token> tokens, int mode) :m_tokens(tokens), m_mode(mode) 
 
 bool Parser::isCorrect() {
     bool isOpenParenFound = false;
+    bool isOpenModuleFound = false;
+
     unsigned int openParenCount = 0;
     unsigned int closeParenCount = 0;
+    unsigned int openModuleCount = 0;
+    unsigned int closeModuleCount = 0;
 
     while (m_index < m_tokens.size()) {
         Token cur = consume();
@@ -24,6 +28,29 @@ bool Parser::isCorrect() {
             }
             else {
                 errors.push_back("Incorrect parentheses");
+                return false;
+            }
+        }
+        else if (cur.tokenType == TokenType::openModule) {
+            isOpenModuleFound = true;
+            openModuleCount++;
+        }
+        else if (cur.tokenType == TokenType::closeModule) {
+            if (isOpenModuleFound && (openModuleCount > closeModuleCount)) {
+                closeModuleCount++;
+            }
+            else {
+                errors.push_back("Incorrect modules");
+                return false;
+            }
+        }
+        else if (cur.tokenType == TokenType::equal) {
+            if (openParenCount != closeParenCount) {
+                errors.push_back("Incorrect parentheses");
+                return false;
+            }
+            else if (openModuleCount != closeModuleCount) {
+                errors.push_back("Incorrect modules");
                 return false;
             }
         }

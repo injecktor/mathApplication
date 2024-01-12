@@ -144,9 +144,9 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>540</y>
-       <width>401</width>
-       <height>192</height>
+       <y>451</y>
+       <width>391</width>
+       <height>281</height>
       </rect>
      </property>
      <property name="markdown">

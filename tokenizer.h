@@ -23,6 +23,7 @@ private:
     bool isMinusNumber(int index);
     bool isOpenModule(int index);
     bool isX(int index);
+    bool isX(QChar character);
     double takeWholeNumber();
     bool isBitSet(int bit);
     void checkIfEquation();
