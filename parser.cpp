@@ -3,7 +3,7 @@
 QVector<QString> info;
 bool isError;
 
-Parser::Parser(QVector<Token> tokens) :m_tokens(tokens) {
+Parser::Parser(QVector<Token> tokens, int mode) :m_tokens(tokens), m_mode(mode) {
 
 }
 
@@ -204,4 +204,9 @@ std::optional<Token> Parser::peek(int offset) {
     else {
         return m_tokens.at(m_index + offset);
     }
+}
+
+bool Parser::isBitSet(int bit) {
+    if (m_mode & (1 << bit)) return true;
+    return false;
 }

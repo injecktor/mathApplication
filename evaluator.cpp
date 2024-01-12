@@ -1,6 +1,8 @@
 #include "evaluator.h"
 
-Evaluator::Evaluator() {}
+Evaluator::Evaluator(int mode): m_mode(mode) {
+    isEquation = isBitSet(Modes::equation);
+}
 
 QString Evaluator::eval(QString str) {
     QString string = str.replace( " ", "" );
@@ -11,13 +13,13 @@ QString Evaluator::eval(QString str) {
         return "";
     }
     info.push_back("Evaluating: " + string);
-    tokenizer = new Tokenizer(string);
+    tokenizer = new Tokenizer(string, m_mode);
     QVector<Token> tokens = tokenizer->tokenize();
     if (tokens.isEmpty()) {
         info.push_back("Tokenization gone wrong");
         return "";
     }
-    parser = new Parser(tokens);
+    parser = new Parser(tokens, m_mode);
     QString answer = parser->solve();
     if (answer == "") {
         info.push_back("Error in parser");
@@ -25,4 +27,9 @@ QString Evaluator::eval(QString str) {
     info.push_back("Answer: " + answer + '\n');
     emit returnEvaluation(answer);
     return answer;
+}
+
+bool Evaluator::isBitSet(int bit) {
+    if (m_mode & (1 << bit)) return true;
+    return false;
 }

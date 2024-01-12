@@ -1,7 +1,7 @@
 #include "tokenizer.h"
 
-Tokenizer::Tokenizer(QString input) : m_str(input) {
-
+Tokenizer::Tokenizer(QString input, int mode) : m_str(input), m_mode(mode) {
+    isEquation = isBitSet(Modes::equation);
 }
 
 QVector<Token> Tokenizer::tokenize() {
@@ -69,6 +69,18 @@ bool Tokenizer::isOpenModule(int index) {
     else if (peek(index - 1).value().isDigit() || peek(index - 1).value() == ')') {
         return false;
     }
+    else if (peek(index - 1).value() == '|') {
+        if (isOpenModule(index - 1)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    else if (isX(index - 1)) {
+        checkIfEquation();
+        return false;
+    }
     return true;
 }
 
@@ -81,6 +93,10 @@ bool Tokenizer::isMinusNumber(int index) {
         if (peek(index + 1).has_value()) {
             if (peek(index + 1).value().isDigit()) {
                 return true;
+            }
+            else if (isX(index + 1)) {
+                checkIfEquation();
+                return false;
             }
             else {
                 return false;
@@ -95,10 +111,18 @@ bool Tokenizer::isMinusNumber(int index) {
     else if (peek(index - 1).value().isDigit() || peek(index - 1).value() == ')') {
         return false;
     }
-    else if (peek(index - 1).value() == '(' || (peek(index - 1).value() == '|' && !isOpenModule(index - 1))) {
+    else if (isX(index - 1)) {
+        checkIfEquation();
+        return false;
+    }
+    else if (peek(index - 1).value() == '(' || (peek(index - 1).value() == '|' && isOpenModule(index - 1))) {
         if (peek(index + 1).has_value()) {
             if (peek(index + 1).value().isDigit()) {
                 return true;
+            }
+            else if (isX(index + 1)) {
+                checkIfEquation();
+                return false;
             }
             else {
                 return false;
@@ -134,3 +158,26 @@ std::optional<QChar> Tokenizer::peek(int offset) {
     }
 }
 
+bool Tokenizer::isBitSet(int bit) {
+    if (m_mode & (1 << bit)) return true;
+    return false;
+}
+
+bool Tokenizer::isX(int index) {
+    if (index >= m_str.size() || index < 0) {
+        info.push_back("Incorrect index in isX");
+        isError = true;
+        return true;
+    }
+    if (m_str.at(index) == 'x') {
+        return true;
+    }
+    return false;
+}
+
+void Tokenizer::checkIfEquation() {
+    if (!isEquation) {
+        info.push_back("It's not an equation mode");
+        isError = true;
+    }
+}

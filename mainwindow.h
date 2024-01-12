@@ -7,8 +7,14 @@
 #include <QThread>
 #include <QTimer>
 #include <QScrollBar>
+#include <QRadioButton>
 
 #include "evaluator.h"
+
+typedef enum {
+    regularCalculatorFrame = 0,
+    equationFrame,
+} Frames;
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -25,6 +31,26 @@ public:
     ~MainWindow();
 
     void test();
+
+signals:
+    void eval(QString);
+
+private:
+    Ui::MainWindow *ui;
+
+    Evaluator* evaluator;
+    QThread* tokenizerThread;
+    QTimer* infoTimer;
+
+    int testNumber;
+    bool isTest;
+    int m_mode;
+    int m_frame;
+    int m_frameCount = 2;
+
+    int setMode(QVector<int> modes);
+    void showFrame(QVector<int> frames);
+    void hideAll();
 
 private slots:
     void getEvaluation(QString);
@@ -55,18 +81,9 @@ private slots:
     void on_CEButton_released();
     void on_evalButton_released();
 
-signals:
-    void eval(QString);
-
-private:
-    Ui::MainWindow *ui;
-
-    Evaluator* evaluator;
-    QThread* tokenizerThread;
-    QTimer* infoTimer;
-
-    int testNumber;
-
-    bool isTest;
+    void on_radioRegularCalculator_released();
+    void on_radioEquation_released();
+    void on_xButton_released();
+    void on_equalButton_released();
 };
 #endif // MAINWINDOW_H

@@ -7,7 +7,13 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    evaluator = new Evaluator;
+
+    hideAll();
+    showFrame({Frames::regularCalculatorFrame});
+
+    m_mode = setMode({Modes::evaluation});
+
+    evaluator = new Evaluator(m_mode);
     tokenizerThread = new QThread;
     evaluator->moveToThread(tokenizerThread);
     tokenizerThread->start();
@@ -69,8 +75,53 @@ MainWindow::~MainWindow()
 
 void MainWindow::getEvaluation(QString answer) {
     ui->display->setText(answer);
-    // ui->textInfo->verticalScrollBar()->setValue(ui->textInfo->verticalScrollBar()->maximum());
-    // ui->textInfo->verticalScrollBar()->
+}
+
+int MainWindow::setMode(QVector<int> modes) {
+    int mode = 0;
+    for (int var = 0; var < modes.size(); ++var) {
+        mode |= (1 << modes.at(var));
+    }
+    return mode;
+}
+
+void MainWindow::on_radioRegularCalculator_released()
+{
+    showFrame({Frames::regularCalculatorFrame});
+}
+
+void MainWindow::on_radioEquation_released()
+{
+    showFrame({Frames::equationFrame});
+}
+
+void MainWindow::showFrame(QVector<int> frames) {
+    hideAll();
+    int frame = 0;
+    for (int var = 0; var < frames.size(); ++var) {
+        frame |= (1 << frames.at(var));
+    }
+    for (int var = 0; var < m_frameCount; ++var) {
+        if (frame & (1 << var)) {
+            switch(var) {
+            case Frames::regularCalculatorFrame:
+                ui->regularCalculatorFrame->show();
+                break;
+            case Frames::equationFrame:
+                ui->regularCalculatorFrame->show();
+                ui->equationFrame->show();
+                break;
+            default:
+                info.push_back("Unknown frame");
+                isError = true;
+            }
+        }
+    }
+}
+
+void MainWindow::hideAll() {
+    ui->regularCalculatorFrame->hide();
+    ui->equationFrame->hide();
 }
 
 void MainWindow::on_evalButton_released()
@@ -197,3 +248,16 @@ void MainWindow::on_CEButton_released()
 {
     ui->display->setText("");
 }
+
+
+void MainWindow::on_xButton_released()
+{
+    ui->display->setText(ui->display->toPlainText() + "x");
+}
+
+
+void MainWindow::on_equalButton_released()
+{
+    ui->display->setText(ui->display->toPlainText() + "=");
+}
+
